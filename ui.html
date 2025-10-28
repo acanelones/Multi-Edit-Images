@@ -1,0 +1,49 @@
+<style>
+body {
+    background-color: var(--figma-color-bg);
+    color: var(--figma-color-text);
+}
+</style>
+<head>
+    <link rel="stylesheet" href="/node_modules/figma-plugin-ds/dist/figma-plugin-ds.css">
+</head>
+<script>
+    // Enable the save button when any checkbox is changed
+    document.querySelectorAll('.checkbox__box').forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+            document.getElementById('saveButton').disabled = false;
+        });
+    });
+
+    // Close UI on cancel
+    document.getElementById('cancelButton').onclick = () => {
+        parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+    };
+
+    // Send settings to plugin on Save
+    document.getElementById('saveButton').onclick = () => {
+        const traverseChildNodes = document.getElementById('traverseChildNodes').checked;
+        const changeSelection = document.getElementById('changeSelection').checked;
+        parent.postMessage({ pluginMessage: { type: 'save', traverseChildNodes, changeSelection } }, '*');
+    }
+</script>
+<body>
+    <h1 class="type--xlarge">Multi-edit Images</h1>
+    <hr />
+    <h2 class="type--large">Settings</h2>
+    <div class="checkbox">
+        <input type="checkbox" class="checkbox__box" id="traverseChildNodes" checked />
+        <label class="checkbox__label" for="traverseChildNodes">Apply changes to image layers inside groups</label>
+    </div>
+
+    <br />
+    <div class="checkbox">
+        <input type="checkbox" class="checkbox__box" id="changeSelection" checked />
+        <label class="checkbox__label" for="changeSelection">Select modified image layers after the plugin runs</label>
+    </div>
+    <br />
+    <div id="button-group">
+        <button class="button button--primary" id="saveButton" disabled>Save Changes</button>
+        <button class="button button--secondary" id="cancelButton">Cancel</button>
+    </div>
+</body>

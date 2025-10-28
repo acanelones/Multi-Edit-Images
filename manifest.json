@@ -1,0 +1,53 @@
+{
+  "name": "Multi-edit Images",
+  "id": "1564663734152589387",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
+  "ui": "ui.html",
+  "editorType": [
+    "figma"
+  ],
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  },
+  "menu": [
+    {"name":"Scale Mode","menu":[
+      { "name": "Fill", "command": "scale-fill" },
+      { "name":"Fit", "command":"scale-fit" },
+      { "name":"Crop", "command":"scale-crop" },
+      { "name":"Tile", "command":"scale-tile" }
+    ]},
+    {"name":"Blend Mode", "menu":[
+      { "name": "Normal", "command": "blend-normal" }, 
+      { "separator": true}, 
+      { "name": "Darken", "command": "blend-darken" }, 
+      { "name": "Multiply", "command": "blend-multiply" }, 
+      { "name": "Plus Darker", "command": "blend-plus-darker" }, 
+      { "name": "Color Burn", "command": "blend-color-burn" }, 
+      { "separator": true}, 
+      { "name": "Lighten", "command": "blend-lighten" }, 
+      { "name": "Screen", "command": "blend-screen" }, 
+      { "name": "Plus Lighter", "command": "blend-plus-lighter" }, 
+      { "name": "Color Dodge", "command": "blend-color-dodge" }, 
+      { "separator": true}, 
+      { "name": "Overlay", "command": "blend-overlay" }, 
+      { "name": "Soft Light", "command": "blend-soft-light" }, 
+      { "name": "Hard Light", "command": "blend-hard-light" }, 
+      { "separator": true}, 
+      { "name": "Difference", "command": "blend-difference" }, 
+      { "name": "Exclusion", "command": "blend-exclusion" }, 
+      { "separator": true}, 
+      { "name": "Hue", "command": "blend-hue" }, 
+      { "name": "Saturation", "command": "blend-saturation" }, 
+      { "name": "Color", "command": "blend-color" }, 
+      { "name": "Luminosity", "command": "blend-luminosity" }
+    ]},
+    { "separator": true },
+    { "name": "Settings", "command": "settings" }
+  ]
+}
