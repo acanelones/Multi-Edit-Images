@@ -39,9 +39,11 @@ body {
     </div>
 </body>
 <script>
+    let currentSettings = {};
+
     onmessage = (event) => {
         const msg = event.data.pluginMessage;
-        console.log(msg);
+        currentSettings = msg.settings;
         if (msg.type === 'load-settings') {
             document.getElementById('traverseChildNodes').checked = msg.settings.traverseChildNodes;
             document.getElementById('changeSelection').checked = msg.settings.changeSelection;
@@ -51,7 +53,14 @@ body {
     // Enable the save button when any checkbox is changed
     document.querySelectorAll('.checkbox__box').forEach((checkbox) => {
         checkbox.addEventListener('change', () => {
-            document.getElementById('saveButton').disabled = false;
+            if (
+                document.getElementById('traverseChildNodes').checked !== currentSettings.traverseChildNodes ||
+                document.getElementById('changeSelection').checked !== currentSettings.changeSelection
+            ) {
+                document.getElementById('saveButton').disabled = false;
+            } else {
+                document.getElementById('saveButton').disabled = true;
+            }
         });
     });
 
