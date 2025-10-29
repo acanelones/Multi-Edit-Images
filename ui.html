@@ -1,13 +1,53 @@
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/figma-plugin-ds@1.0.1/dist/figma-plugin-ds.min.css">
+</head>
 <style>
 body {
+    display: flex;
+    flex-direction: column;
     background-color: var(--figma-color-bg);
     color: var(--figma-color-text);
+    padding: 12px;
+    justify-content: space-between;
+}
+.checkbox label {
+    color: var(--figma-color-text);
+}
+#button-group {
+    display: flex;
+    gap: 8px;
 }
 </style>
-<head>
-    <link rel="stylesheet" href="/node_modules/figma-plugin-ds/dist/figma-plugin-ds.css">
-</head>
+<body>
+    <div id="top-area">
+        <h2 class="type--large">Settings</h2>
+        <div class="checkbox">
+            <input type="checkbox" class="checkbox__box" id="traverseChildNodes" />
+            <label class="checkbox__label" for="traverseChildNodes">Edit image layers inside groups</label>
+        </div>
+        <div class="checkbox">
+            <input type="checkbox" class="checkbox__box" id="changeSelection" />
+            <label class="checkbox__label" for="changeSelection">Select all modified image layers after running</label>
+        </div>
+        <br />
+    </div>
+    <div id="bottom-area">
+        <div id="button-group">
+            <button class="button button--primary" id="saveButton" disabled>Save Changes</button>
+            <button class="button button--secondary" id="cancelButton">Cancel</button>
+        </div>
+    </div>
+</body>
 <script>
+    onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        console.log(msg);
+        if (msg.type === 'load-settings') {
+            document.getElementById('traverseChildNodes').checked = msg.settings.traverseChildNodes;
+            document.getElementById('changeSelection').checked = msg.settings.changeSelection;
+        }
+    };
+
     // Enable the save button when any checkbox is changed
     document.querySelectorAll('.checkbox__box').forEach((checkbox) => {
         checkbox.addEventListener('change', () => {
@@ -27,23 +67,3 @@ body {
         parent.postMessage({ pluginMessage: { type: 'save', traverseChildNodes, changeSelection } }, '*');
     }
 </script>
-<body>
-    <h1 class="type--xlarge">Multi-edit Images</h1>
-    <hr />
-    <h2 class="type--large">Settings</h2>
-    <div class="checkbox">
-        <input type="checkbox" class="checkbox__box" id="traverseChildNodes" checked />
-        <label class="checkbox__label" for="traverseChildNodes">Apply changes to image layers inside groups</label>
-    </div>
-
-    <br />
-    <div class="checkbox">
-        <input type="checkbox" class="checkbox__box" id="changeSelection" checked />
-        <label class="checkbox__label" for="changeSelection">Select modified image layers after the plugin runs</label>
-    </div>
-    <br />
-    <div id="button-group">
-        <button class="button button--primary" id="saveButton" disabled>Save Changes</button>
-        <button class="button button--secondary" id="cancelButton">Cancel</button>
-    </div>
-</body>

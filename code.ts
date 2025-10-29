@@ -29,6 +29,16 @@ const scaleModes: Record<string, { value: ImagePaint["scaleMode"], label: string
 const selection = figma.currentPage.selection;
 const adjustedNodes: SceneNode[] = [];
 
+let settings = {
+    traverseChildNodes: true,
+    changeSelection: true 
+};
+
+async function loadSettings() {
+    settings.traverseChildNodes = (await figma.clientStorage.getAsync('traverseChildNodes')) ?? true;
+    settings.changeSelection = (await figma.clientStorage.getAsync('changeSelection')) ?? true;
+};
+
 function traverseAndApply(node: SceneNode, onNode: (node: SceneNode) => number) {
   if (!node.visible) {
     return 0;
@@ -85,38 +95,64 @@ function setBlendMode(node: SceneNode, blendMode: { value: BlendMode, label: str
 }
 
 // Main Sequence
-if (figma.command === "settings") {
-  figma.showUI(__html__, { width: 300, height: 200 });
-  figma.ui.postMessage({ type: 'load-settings' });
-  figma.ui.onmessage = (msg) => {
-    if (msg.type === 'save-settings') {
-      // Here you can handle saving settings if needed
-      figma.closePlugin();
-    }
-  };
+(async () => {
+    await loadSettings();
 
-}
-if (selection.length === 0) { 
-    figma.notify("Nothing was selected. Select some layers first."); 
-} 
-else { 
+    if (figma.command === "settings") {
+      figma.showUI(__html__, { width: 300, height: 200, themeColors: true });
+
+      figma.ui.postMessage({ type: 'load-settings', settings });
+
+      figma.ui.onmessage = async (msg) => {
+          if (msg.type === 'save') {
+            figma.clientStorage.setAsync('traverseChildNodes', msg.traverseChildNodes);
+            figma.clientStorage.setAsync('changeSelection', msg.changeSelection);
+            console.log(await figma.clientStorage.getAsync('traverseChildNodes'));
+            console.log(await figma.clientStorage.getAsync('changeSelection'));
+            figma.closePlugin();
+          }
+          if (msg.type === 'cancel') {
+            figma.closePlugin();
+          }
+      };
+  }
+  else { 
+    if (selection.length === 0) {  
+        figma.notify("Nothing was selected. Select some layers first."); 
+    }
     if (figma.command in scaleModes) {
-        const scale = scaleModes[figma.command];
-        let totalChanged = 0;
-        for (const node of selection) {
-          totalChanged += traverseAndApply(node, (n) => setScaleMode(n, scale));
-        }
-        figma.notify(`Adjusted ${ totalChanged } images to ${ scale.label }.`); 
+          const scale = scaleModes[figma.command];
+          let totalChanged = 0;
+          if (!settings.traverseChildNodes) {
+              for (const node of selection) {
+                  totalChanged += setScaleMode(node, scale);
+              }
+          }
+          else {
+            for (const node of selection) {
+              totalChanged += traverseAndApply(node, (n) => setScaleMode(n, scale));
+            }
+          }
+          figma.notify(`Adjusted ${ totalChanged } images to ${ scale.label }.`); 
     } 
     else if (figma.command in blendModes) { 
         const blend = blendModes[figma.command];
         let totalChanged = 0;
-        for (const node of selection) {
-          totalChanged += traverseAndApply(node, (n) => setBlendMode(n, blend));
+        if (!settings.traverseChildNodes) {
+            for (const node of selection) {
+                totalChanged += setBlendMode(node, blend);
+            }
+        }
+        else {
+            for (const node of selection) {
+                totalChanged += traverseAndApply(node, (n) => setBlendMode(n, blend));
+            }
         }
         figma.notify(`Set the Blend Mode to ${ blend.label } in ${ totalChanged } images.`);
     }
-    figma.currentPage.selection = adjustedNodes;
-}
-
-figma.closePlugin();
+    if (settings.changeSelection){
+      figma.currentPage.selection = adjustedNodes;
+    }
+    figma.closePlugin();
+  }
+})();
